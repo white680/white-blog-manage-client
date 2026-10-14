@@ -1,0 +1,69 @@
+body {
+  background-color: @bg-color-m;
+}
+#app {
+  padding-top: 64px;
+}
+
+// 清空 a 标签的所有默认样式
+a {
+  &,
+  &:link,
+  &:visited,
+  &:hover,
+  &:active,
+  &:focus {
+    color: inherit;                    // 去掉默认蓝/紫/红
+    text-decoration: none;             // 去掉下划线
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    outline: none;                     // 去掉聚焦轮廓
+    cursor: pointer;                   // 保留手型光标
+    -webkit-tap-highlight-color: transparent;  // 移动端点击高亮
+    -webkit-text-decoration-skip: objects;
+  }
+}
+
+// Codex 添加：从左向右揭开新主题，样式必须位于全局文件
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: theme-curtain-reveal 600ms ease-in-out both;
+  z-index: 2;
+}
+
+@keyframes theme-curtain-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+// Codex 添加：旧浏览器的幕布降级动画，盖满时由组件切换主题
+.theme-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: #7c3aed;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 420ms ease-in-out;
+}
+
+.theme-curtain.cover {
+  transform: scaleX(1);
+}
+
+.theme-curtain.reveal {
+  transform: scaleX(0);
+  transform-origin: right;
+}

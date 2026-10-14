@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="154" height="120" viewBox="0 0 154 120" role="img" aria-labelledby="title desc">
+  <title id="title">white-博客几何 W 图标 V2</title>
+  <desc id="desc">由四个紫色几何块构成的扁平字母 W 图标。</desc>
+
+  <path d="M18 28H40L58 74L48 96H40Z" fill="#8B5CF6"/>
+  <path d="M48 96H61L78 49L68 28L57 58Z" fill="#6D4BD1"/>
+  <path d="M68 28H85L103 76L93 96H87Z" fill="#A78BFA"/>
+  <path d="M93 96H110L136 28H114Z" fill="#C4B5FD"/>
+</svg>
