@@ -35,7 +35,10 @@ const drawGatherData = () =>{
 .gather{
     width: 100%;
     .gather__list{
-        width: 25%;
+        /* flex:1 = flex:1 1 0%，剩余空间（已扣除 gap）被平均分配，
+           不会再出现 4×25% + 3×16px 超出容器宽度的问题 */
+        flex: 1;
+        min-width: 0; // 防止内部内容把子项撑破
         background: #6d6c6c;
         display: flex;
         justify-content: space-between;
@@ -47,6 +50,14 @@ const drawGatherData = () =>{
                 color: @white;
             }
         }
+    }
+}
+
+// Codex 添加：仅暗色模式下，后三张卡片的名称和数字使用黑色
+[data-theme='dark'] .gather__list:not(:first-child) {
+    :deep(.yk-text),
+    :deep(.yk-title) {
+        color: #000;
     }
 }
 </style>

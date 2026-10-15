@@ -6,8 +6,8 @@
     </yk-space>
     <yk-space align="center" size="xl">
       <!-- 邮箱icon -->
-      <yk-badge>
-        <IconMailOutline style="font-size: 20px;"/>
+      <yk-badge is-dot>
+        <IconMailOutline style="font-size: 20px;" class="message" @click="changeActive(true)"/>
       </yk-badge>
       <!-- 头像 -->
       <yk-avatar :img-url="Avatar"/>
@@ -24,8 +24,9 @@
         <IconSunFill v-else />
       </button>
       <!--  -->
-      <yk-button size="l">退出</yk-button>
+      <yk-button size="l" style="--pcolor: #8a3ee8">退出</yk-button>
     </yk-space>
+    <PrivateMessage  :active="active" @close="changeActive(false)"/>
   </div>
   <!-- Codex 添加：不支持 View Transition 时使用的整页幕布 -->
   <Teleport to="body">
@@ -41,7 +42,7 @@
 <script setup lang="ts">
 // 通过 import 让 Vite 处理图片资源，拿到可用的最终 URL
 import Avatar from '../../images/pic.png'
-
+import {PrivateMessage} from '../reply/index'
 import { useRouter } from 'vue-router';
 // Codex 添加：主题状态与幕布动画所需依赖
 import { nextTick, ref } from 'vue'
@@ -51,6 +52,11 @@ const router = useRouter()
 // 返回总览页面
 const backHome=()=>{
   router.push('/')
+}
+// 打开或关闭私信
+const active = ref<boolean>(false)
+const changeActive=(e:boolean)=>{
+  active.value = e
 }
 
 // Codex 添加：沿用 Yike UI 的主题属性和存储键，保留原有主题记忆
@@ -90,9 +96,9 @@ async function toggleThemeWithCurtain() {
   }
 }
 
-// Codex 添加：幕布盖满后切换主题，再从另一侧收起
+// Codex 添加：幕布从左上角盖满后切换主题，再向右下角收起
 async function handleCurtainTransitionEnd(event: TransitionEvent) {
-  if (event.target !== event.currentTarget || event.propertyName !== 'transform') return
+  if (event.target !== event.currentTarget || event.propertyName !== 'clip-path') return
 
   if (curtainPhase.value === 'cover') {
     try {
@@ -127,6 +133,12 @@ async function handleCurtainTransitionEnd(event: TransitionEvent) {
     font-weight: 600;
     font-size: 20px;
     font-style: normal;
+  }
+  .message{
+    cursor: pointer;
+    &:hover{
+      background-color: @gray-1;
+    }
   }
   // 头像：yk-avatar 是 flex 子项，默认 flex-shrink:1 会被压扁成椭圆，
   // 且组件内置 img 只有 height:100%，非正方形图片会横向溢出被裁掉
