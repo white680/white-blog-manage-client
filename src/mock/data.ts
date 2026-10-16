@@ -83,3 +83,68 @@ export const comment = Mock.mock({
         }]
     }
 })
+
+// 文章状态
+export const state = Mock.mock({
+    "data": [
+        {
+            "id": 0,
+            "name": "已发布",
+            "value|0-30": 4
+        },
+        {
+            "id": 1,
+            "name": "未发布",
+            "value|0-30": 4
+        }
+    ]
+})
+// 分组
+export const subset = Mock.mock({
+    "data":{
+        "count":120,
+        "list|4":[
+            {
+                "id|+1": 0,
+                "name": "@ctitle(3,5)",
+                "value|0-30": 4,
+                "moment":"@datetime()"
+            }
+        ]
+    }
+})
+// 模拟数据：图片合集
+const photos = [
+    "a.jpg",
+    "b.jpg",
+    "c.jpg",
+    "d.jpg",
+    "e.jpg",
+    "f.jpg",
+    "g.jpg",
+    "h.jpg",
+    "i.jpg",
+    "j.jpg",
+    "k.jpg",
+    "l.jpg",
+    "m.jpg",
+    "n.jpg",
+    "o.jpg",
+    "p.jpg",
+    "q.jpg",
+    "r.jpg",
+]
+
+// 文件数据
+export const mkfile = Mock.mock({
+    "count":64,
+    "list|64":[
+        {
+            "id|1":0,
+            "url|1":photos,
+            "fileName":"@ctitle(2,12)",
+            "format":"jpeg",
+            "subsetId|0-4":3
+        }
+    ]
+})

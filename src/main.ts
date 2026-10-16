@@ -11,6 +11,10 @@ import { YkMessage, YkNotification } from '@yike-design/ui'
 // 路由
 import router from './router/index'
 
+// pinia
+import { createPinia } from 'pinia'
+
+const pinia = createPinia()
 const app = createApp(App)
 
 // 将组件库的全局方法挂载到 Vue 实例上
@@ -23,4 +27,5 @@ app.config.globalProperties.$notification = YkNotification
 app
     .use(router)
     .use(Icon)
+    .use(pinia)
     .mount('#app')

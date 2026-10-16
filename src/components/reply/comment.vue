@@ -29,26 +29,25 @@ import { onMounted, ref,getCurrentInstance } from "vue";
 import { Reply } from "../reply/index";
 import { comment } from "../../mock/data";
 import type { CommentProps } from "./reply";
-type Request = {
-  token?: string;
-  pageSize: number;
-  nowPage: number;
-};
 
+// 总数
+const count = ref<number>(123);
+// 数据内容
+const comments = ref();
 const proxy:any = getCurrentInstance()?.proxy
 
 const props = withDefaults(defineProps<CommentProps>(), {
   pageSize: 8,
 });
-
+type Request = {
+  token?: string;
+  pageSize: number;
+  nowPage: number;
+};
 const request: Request = {
   pageSize: props.pageSize,
   nowPage: 1,
 };
-// 总数
-const count = ref<number>(123);
-// 数据内容
-const comments = ref();
 
 // 获取数据
 const drwCommentData = () => {

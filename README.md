@@ -1,5 +1,63 @@
-# Vue 3 + TypeScript + Vite
+# white-博客后台管理前端
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+基于 Vue 3 和 TypeScript 的博客后台管理界面。目前以总览页为主，展示内容统计、访问图表、评论列表和私信抽屉。页面数据来自项目内的 Mock.js 模拟数据，尚未接入后端接口。
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## 当前功能
+
+- **总览页**：展示本地文件、博客文章、摄影图库和随笔随记四张统计卡片；数值由模拟数据生成。
+- **数据图表**：使用 ECharts 展示访问量折线图、设备来源和页面访问分布。访问量可切换近一周和近一月；饼图区域目前显示模拟数据，时间切换按钮尚未接入数据切换逻辑。
+- **评论与私信**：展示模拟内容，支持分页和在当前页面列表中删除条目。私信从顶部邮件图标打开。
+- **外观切换**：支持浅色与暗色模式，主题选择保存在浏览器本地存储中。
+
+目前仅配置了 `/overview` 页面路由，访问 `/` 会跳转至该页面。侧栏中的其他栏目入口尚无对应页面；总览页评论区下方仍是空白预留区域。顶部的退出按钮和统计卡片上的添加按钮目前也未连接业务操作。
+
+## 技术栈
+
+| 用途 | 技术 |
+| --- | --- |
+| 页面与路由 | Vue 3、TypeScript、Vue Router |
+| 构建 | Vite |
+| 界面与样式 | Yike UI、Less、VueUse |
+| 图表 | ECharts |
+| 模拟数据 | Mock.js |
+
+## 本地运行
+
+需要先安装 Node.js 和 pnpm。在本目录执行：
+
+```bash
+pnpm install
+pnpm dev
+```
+
+启动后访问终端输出的本地地址。其他脚本：
+
+```bash
+pnpm build    # TypeScript 检查并构建生产文件
+pnpm preview  # 本地预览生产构建
+```
+
+## 目录说明
+
+```text
+src/
+├─ components/
+│  ├─ bar/       # 顶栏、侧栏与页面标题
+│  ├─ echarts/   # 折线图和饼图组件
+│  ├─ overview/  # 总览统计卡片与图表区域
+│  └─ reply/     # 评论、私信及单条内容组件
+├─ images/       # 页面图片与标识
+├─ mock/data.ts  # 总览、访问量及评论的模拟数据
+├─ router/       # 页面路由
+├─ utils/        # 菜单配置与类型定义
+├─ views/        # 页面视图
+├─ App.vue       # 应用根组件
+└─ main.ts       # 应用入口
+public/          # 公开静态资源
+```
+
+## 当前限制
+
+- 统计、图表、评论和私信均使用本地模拟数据；刷新页面后不会保留列表中的删除结果。
+- 删除操作只过滤当前展示的列表，没有调用删除接口，也不会同步更新页面显示的总数。
+- 其他侧栏栏目、退出操作、统计卡片添加操作及评论区下方预留区域仍待实现。

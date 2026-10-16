@@ -13,3 +13,21 @@ export type ReplyData = {
     moment: string;//时间
     complaint?: number;//举报数
 };
+
+// 分组
+export interface SubsetData {
+    id: number | string;
+    name: string | number;
+    value: number;
+    moment?:string
+}
+
+// 文件
+export interface FileData{
+    id:number,
+    url:string, //地址路径
+    fileName:string, //文件名
+    format:string, //格式
+    subsetId:number, //所属类型
+    selected?:boolean //是否选择
+}

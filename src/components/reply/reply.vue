@@ -11,7 +11,7 @@
         <yk-tag type="primary">{{ content?.article?.title }}</yk-tag>
         <yk-text type="danger" v-show="content?.complaint! >0">举报 {{ content?.complaint }}</yk-text>
       </yk-space>
-      <IconDeleteOutline class="reply__main__delete" @click="deleteReply(props.content!.id)"/>
+      <IconDeleteOutline class="reply__main__delete" @click.stop="deleteReply(props.content!.id)"/>
     </yk-space>
   </yk-space>
 </template>
