@@ -76,23 +76,31 @@ const goLogin = () => {
   router.push("/login");
 };
 
-const isRegister = () => {
-  let data = {};
-  isRegisterApi(data).then((res: any) => {
-    if (tackleCode(res.code)) {
-      // 已注册
+const isRegister = async () => {
+  try {
+    const res: any = await isRegisterApi({});
+    if (res.code === 200) {
       isLogin();
+    } else if (res.code === 401) {
+      router.push("/register");
+    } else {
+      console.error("检查注册状态失败", res);
     }
-  });
+  } catch (error) {
+    console.error("检查注册状态失败", error);
+  }
 };
 
 // 获取私信未读数数据
-const getNoreadMessage = () => {
-  getNoreadMessageApi(request).then((res: any) => {
-    if (tackleCode(res.code)) {
-      unread.value = res.data.count;
-    }
-  });
+const getNoreadMessage = async () => {
+  try {
+    const res: any = await getNoreadMessageApi({});
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200 || typeof res.data?.count !== "number") return;
+    unread.value = res.data.count;
+  } catch (error) {
+    console.error("获取未读私信数失败", error);
+  }
 };
 
 const isLogin = () => {

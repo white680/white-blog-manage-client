@@ -8,13 +8,7 @@
       </h3>
     </template>
     <yk-space dir="vertical">
-      <reply
-        v-for="item in comments"
-        :key="item.id"
-        :is-comment="false"
-        :content="item"
-        @delete="deleteComment"
-      />
+      <reply v-for="item in comments" :key="item.id" :is-comment="false" :content="item" @delete="deleteComment" />
     </yk-space>
     <template #footer>
       <yk-pagination size="m" :total="count" simple @change="changePage" />
@@ -75,21 +69,18 @@ const count = ref<number>(123);
 const comments = ref();
 
 // 获取私信数据
-const drwCommentData = (e: boolean) => {
-  // let data = comment.data;
-  // comments.value = data.list.slice(
-  //   (request.nowPage - 1) * request.pageSize,
-  //   request.nowPage * request.pageSize
-  // );
+const drwCommentData = async (e: boolean) => {
   request.count = e;
-  getMessageApi(request).then((res: any) => {
-    if (tackleCode(res.code)) {
-      if (res.data.count != -1) {
-        count.value = res.data.count;
-      }
-      comments.value = res.data.result;
-    }
-  });
+  const params = { ...request };
+  try {
+    const res: any = await getMessageApi(params);
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200 || !Array.isArray(res.data?.result)) return;
+    if (res.data.count >= 0) count.value = res.data.count;
+    comments.value = res.data.result;
+  } catch (error) {
+    console.error("获取私信失败", error);
+  }
 };
 //翻页操作
 const changePage = (e: number) => {
@@ -98,22 +89,19 @@ const changePage = (e: number) => {
 };
 
 // 删除评论
-const deleteComment = (e: number) => {
-  let req = {
-    token: userStore.token,
-    id: e,
-  };
-  deleteMessageApi(req).then((res: any) => {
-    if (tackleCode(res.code)) {
-      if (res.code == 200) {
-        proxy.$message({ type: "success", message: "删除成功" });
-        drwCommentData(true);
-      } else {
-        proxy.$message({ type: "warning", message: "删除失败，请检查网络是否正常" });
-      }
+const deleteComment = async (e: number) => {
+  try {
+    const res: any = await deleteMessageApi({ id: e });
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200) {
+      proxy.$message({ type: "warning", message: res.msg ?? "删除失败" });
+      return;
     }
-  });
-  drwCommentData(true);
+    proxy.$message({ type: "success", message: "删除成功" });
+    drwCommentData(true);
+  } catch (error) {
+    console.error("删除私信失败", error);
+  }
 };
 
 onMounted(() => {

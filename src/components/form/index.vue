@@ -71,7 +71,10 @@ import { FILE_GROUP } from "../../utils/fileGroups";
 import { useUserStore } from "../../store/user";
 import type { ArticleFormData, SubsetData, LabelData } from "../../utils/interface";
 import { baseImgUrl } from "../../utils/env";
+import { useCode } from "../../hook/code.ts";
 
+// token验证
+const { tackleCode } = useCode();
 
 type FormProps = { classify?: 0 | 1 };
 const { classify = 0 } = defineProps<FormProps>();
@@ -101,18 +104,20 @@ const newLabel = ref("");
 // 表单独立获取对应类型的分类，刷新页面时不再回退到随机 Mock 数据。
 const subsetList = ref<SubsetData[]>([]);
 // 获取分类列表
-const getSubset = () => {
-  subsetApi({ token: userStore.token, classify })
-    .then((res: any) => {
-      if (res.code === 200 && Array.isArray(res.data?.list)) {
-        subsetList.value = res.data.list;
-      }
-    })
-    .catch(() => {
-      // Axios 拦截器已提示请求错误，保持分类列表为空。
+const getSubset = async () => {
+  try {
+    const res: any = await subsetApi({ classify });
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200 || !Array.isArray(res.data?.list)) {
       subsetList.value = [];
-    });
-}
+      return;
+    }
+    subsetList.value = res.data.list;
+  } catch (error) {
+    subsetList.value = [];
+    console.error("获取分类失败", error);
+  }
+};
 
 // 根据表单里的分类 id 生成下拉框显示的名称。
 const subsetName = computed(() =>
@@ -131,10 +136,12 @@ const selectedLabels = computed(() =>
 
 const getLabels = async () => {
   try {
-    const res: any = await labelApi({ token: userStore.token });
+    const res: any = await labelApi({});
+    if (!tackleCode(res.code)) return;
     labelList.value = res.code === 200 && Array.isArray(res.data) ? res.data : [];
-  } catch {
+  } catch (error) {
     labelList.value = [];
+    console.error("获取标签失败", error);
   }
 };
 
@@ -194,7 +201,6 @@ const uploadCover = async (): Promise<string> => {
   if (!selectedCoverFile) return formData.value.cover as string;
   const data = new FormData();
   data.append("file", selectedCoverFile); // 必须与后端 single("file") 一致
-  data.append("subsetId", String(FILE_GROUP.article));
   const res: any = await uploadApi(data);
   if (res.code !== 200 || !res.data?.url) throw new Error(res.msg || "封面上传失败");
 

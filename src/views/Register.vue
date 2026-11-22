@@ -8,39 +8,18 @@
       <div class="login__main__content">
         <yk-form ref="formRef" :model="form">
           <yk-form-item label="账号" field="username">
-            <yk-input
-              v-model="form.username"
-              style="width: 240px"
-              placeholder="请输入用户名"
-            ></yk-input>
+            <yk-input v-model="form.username" style="width: 240px" placeholder="请输入用户名"></yk-input>
           </yk-form-item>
           <yk-form-item label="密码" field="password">
-            <yk-input
-              v-model="form.password"
-              placeholder="请输入密码"
-              type="password"
-              style="width: 240px"
-            ></yk-input>
+            <yk-input v-model="form.password" placeholder="请输入密码" type="password" style="width: 240px"></yk-input>
           </yk-form-item>
           <yk-form-item label="重复密码" field="repassword">
-            <yk-input
-              v-model="form.repassword"
-              placeholder="请输入再次密码"
-              type="password"
-              style="width: 240px"
-            ></yk-input>
+            <yk-input v-model="form.repassword" placeholder="请输入再次密码" type="password" style="width: 240px"></yk-input>
           </yk-form-item>
           <yk-form-item style="margin-top: 20px">
             <yk-space style="width: 100%" align="center" :size="20">
-              <yk-button
-                type="primary"
-                @click="resetForm"
-                style="width: 110px; --pcolor: #8a3ee8"
-                >重置</yk-button
-              >
-              <yk-button @click="submitForm" style="width: 110px; --pcolor: #8a3ee8"
-                >注册</yk-button
-              >
+              <yk-button type="primary" @click="resetForm" style="width: 110px; --pcolor: #8a3ee8">重置</yk-button>
+              <yk-button @click="submitForm" style="width: 110px; --pcolor: #8a3ee8">注册</yk-button>
             </yk-space>
           </yk-form-item>
         </yk-form>
@@ -73,29 +52,29 @@ const resetForm = () => {
   form.repassword = "";
 };
 // 提交
-const submitForm = () => {
-  if (form.username && form.password && form.password == form.repassword) {
-    let data = {
-      name: form.username,
-      password: form.password,
-      mail:'2065610135@qq.com',
-      moment: new Date(),
-    };
-    registerApi(data).then((res: any) => {
-      if (tackleCode(res.code)) {
-        // 注册成功
-        proxy.$message({ type: "success", message: "注册成功，3s后跳转到登录页" });
-        setTimeout(() => {
-          router.push("/login");
-        }, 3000);
-      }
-    });
-    console.log("ok");
-  } else {
-    proxy.$message({ type: "warning", message: "输入不完整或密码错误" });
+const submitForm = async () => {
+  if (!form.username || !form.password || form.password !== form.repassword) {
+    proxy.$message({ type: "warning", message: "输入不完整或两次密码不一致" });
+    return;
   }
-  //   清空表单
-  resetForm();
+  const req = {
+    name: form.username,
+    password: form.password,
+    mail: "2065610135@qq.com", // 当前源码固定邮箱；改为真实邮箱需增加表单字段
+    moment: new Date(),
+  };
+  try {
+    const res: any = await registerApi(req);
+    if (res.code !== 200) {
+      proxy.$message({ type: "warning", message: res.msg ?? "注册失败" });
+      return;
+    }
+    resetForm();
+    proxy.$message({ type: "success", message: "注册成功，3s后跳转到登录页" });
+    setTimeout(() => router.push("/login"), 3000);
+  } catch (error) {
+    console.error("注册请求失败", error);
+  }
 };
 </script>
 
@@ -111,28 +90,33 @@ const submitForm = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+
   .login__main {
     width: 500px;
     height: 500px;
     background: @bg-color-l;
     align-items: center;
     padding: 30px;
+
     .login__main__title {
       display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
       width: 100%;
+
       img {
         width: 100px;
         height: 100px;
       }
+
       p {
         .font-xl();
         color: @font-color-l;
         font-weight: 600;
       }
     }
+
     .login__main__content {
       padding: 40px 0;
       width: 100%;

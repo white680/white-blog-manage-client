@@ -23,8 +23,8 @@
     </template>
   </yk-table>
   <!-- 只保留一个删除弹窗，避免每行遮罩叠加；外层管理弹窗已有遮罩。 -->
-  <yk-modal v-model="deleteVisible" title="删除分组" size="s" :show-mask="false"
-    @onSubmit="confirmDelete" @onCloseModal="closeDeleteModal">
+  <yk-modal v-model="deleteVisible" title="删除分组" size="s" :show-mask="false" @onSubmit="confirmDelete"
+    @onCloseModal="closeDeleteModal">
     确定删除这个分组吗？确认后不可撤回。
   </yk-modal>
 </template>
@@ -91,43 +91,39 @@ const blurSubset = (item: SubsetData) => {
 };
 
 /// 提交所有改动过的分组名称，由父组件「确认」按钮调用
-const updateSubset = () => {
-  if (!changedRows.value?.length) return;
-  const token = userStore.token;
-  if (!tackleCode(token)) return;
-
-  Promise.all(
-    changedRows.value.map((item) =>
-      updateSubsetApi({
-        token,
-        subsetID: item.id, // ← 分组 id
-        subsetName: item.name, // ← 当前名称（v-model 已写回 store）
-      })
-    )
-  ).then((resList: any[]) => {
-    if (!resList.every((res) => tackleCode(res.code))) return;
-    originNames.clear();
+const updateSubset = async () => {
+  if (!changedRows.value.length) return;
+  try {
+    const rows = [...changedRows.value];
+    const resList: any[] = await Promise.all(
+      rows.map((item) =>
+        updateSubsetApi({ subsetID: item.id, subsetName: item.name })
+      )
+    );
+    if (!resList.every((res) => tackleCode(res.code) && res.code === 200)) return;
+    for (const item of rows) originNames.set(item.id, item.name);
     changedRows.value = [];
-    YkMessage({ type: 'success', message: '修改成功' });
-  });
+    YkMessage({ type: "success", message: "修改成功" });
+  } catch (error) {
+    console.error("修改分组失败", error);
+  }
 };
 // 把方法暴露给父组件
 defineExpose({ updateSubset, isUpdata });
 
 // 删除分组
-const deleteSubSet = (id: string | number) => {
-  const token = userStore.token;
-  if (!tackleCode(token)) return;
-
-  deleteSubsetApi({ token, subsetID: id }).then((res: any) => {
-    if (!tackleCode(res.code) || res.code !== 200) return; // 只有后端删成功才动本地数据
-
+const deleteSubSet = async (id: string | number) => {
+  try {
+    const res: any = await deleteSubsetApi({ subsetID: id });
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200) return;
     subsetStore.data = subsetStore.data.filter(item => item.id !== id);
-    // 清掉这个分组的"未提交改名"记录，否则点确认会往已删除的 id 发更新
     originNames.delete(id);
     changedRows.value = changedRows.value.filter(row => row.id !== id);
     closeDeleteModal();
-  });
+  } catch (error) {
+    console.error("删除分组失败", error);
+  }
 };
 </script>
 

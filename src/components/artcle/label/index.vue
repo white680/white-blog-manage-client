@@ -70,13 +70,17 @@ const changeOption = (id: number | string, type: string) => {
 // 存储标签数据
 const label = ref<LabelData[]>([]);
 // 获取标签
-const rawlabel = () => {
-  if (tackleCode(userStore.token)) {
-    labelApi({
-      token: userStore.token
-    }).then((res: any) => {
-      label.value = res.data
-    })
+const rawlabel = async () => {
+  try {
+    const res: any = await labelApi({});
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200 || !Array.isArray(res.data)) {
+      proxy.$message({ type: "warning", message: res.msg ?? "标签获取失败" });
+      return;
+    }
+    label.value = res.data;
+  } catch (error) {
+    console.error("获取标签失败", error);
   }
 };
 
@@ -138,27 +142,26 @@ function cancel() {
   inputValue.value = "";
 }
 // 确认按钮回调（新建标签）
-function confirm() {
-  closeBubble();
-  if (inputValue.value) {
-    let req = {
-      token: userStore.token,
-      value: {
-        moment: new Date(),
-        label_name: inputValue.value,
-      }
-    };
-    if (tackleCode(userStore.token)) {
-      addLabelApi(req).then((res: any) => {
-        if (res.code === 200) {
-          proxy.$message({ type: "primary", message: "添加成功" });
-          inputValue.value = "";
-          rawlabel();
-        }
-      })
-    }
-  } else {
+async function confirm() {
+  const name = String(inputValue.value ?? "").trim();
+  if (!name) {
     proxy.$message({ type: "primary", message: "请输入内容" });
+    return;
+  }
+  try {
+    const req = { value: { moment: new Date(), label_name: name } };
+    const res: any = await addLabelApi(req);
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200) {
+      proxy.$message({ type: "warning", message: res.msg ?? "添加失败" });
+      return;
+    }
+    inputValue.value = "";
+    closeBubble();
+    proxy.$message({ type: "primary", message: "添加成功" });
+    await rawlabel();
+  } catch (error) {
+    console.error("添加标签失败", error);
   }
 }
 // 存储气泡框中的input里的值

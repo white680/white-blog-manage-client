@@ -57,7 +57,6 @@
 <script setup lang="ts">
 import "./files.less";
 import { onMounted, ref, getCurrentInstance } from "vue";
-import { mkfile } from "../../../mock/data";
 import type { FileData } from "../../../utils/interface.ts"
 import FileItem from "./files-items/index.vue";
 import { useSubsetStore } from "../../../store/subset";
@@ -225,6 +224,7 @@ const request: Request = {
 const fileList = ref<FileData[]>([]);
 const loading = ref(false);
 let latestRequest = 0;
+
 // 获取数据
 const drwtData = async (e: boolean) => {
   if (!tackleCode(userStore.token)) return;

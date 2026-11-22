@@ -44,24 +44,19 @@ const props = withDefaults(defineProps<labelProps>(), {});
 // 当前标签数组
 const labelData = ref<LabelData[]>([]);
 // 删除标签
-const deletelabel = (e: string | number) => {
-  if (tackleCode(userStore.token)) {
-    let req = {
-      token: userStore.token,
-      labelId: e
+const deletelabel = async (e: string | number) => {
+  try {
+    const res: any = await deleteLabelApi({ labelId: e });
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200) {
+      proxy.$message({ type: "warning", message: res.msg ?? "删除失败" });
+      return;
     }
-    deleteLabelApi(req).then((res: any) => {
-      if (res.code === 200) {
-        labelData.value = labelData.value.filter((obj: { id: string | number }) => {
-          return obj.id !== e;
-        });
-        proxy.$message({ type: "success", message: "删除成功" });
-        // 通知父组件，删除成功
-        emit("label-deleted");
-      } else {
-        proxy.$message({ type: "success", message: "删除失败" });
-      }
-    })
+    labelData.value = labelData.value.filter((obj: { id: string | number }) => obj.id !== e);
+    proxy.$message({ type: "success", message: "删除成功" });
+    emit("label-deleted");
+  } catch (error) {
+    console.error("删除标签失败", error);
   }
 };
 

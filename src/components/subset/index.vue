@@ -99,31 +99,31 @@ const props = defineProps<{
 const subsetManageRef = ref<any>();
 
 // 获取分组
-const rawSubset = () => {
-  let request = {
-    token: userStore.token,
-    classify: props.classify, //文章分组
-  };
-  if (tackleCode(request.token)) {
-    subsetApi(request).then((res: any) => {
-      if (tackleCode(res.code)) {
-        subsetStore.data = res.data.list;
-        subsetStore.count = res.data.count;
-      }
-    });
+const rawSubset = async () => {
+  try {
+    const res: any = await subsetApi({ classify: 0 });
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200 || !Array.isArray(res.data?.list)) return;
+    subsetStore.data = res.data.list;
+    subsetStore.count = res.data.count;
+  } catch (error) {
+    console.error("获取文章分组失败", error);
   }
 };
 
 // 根据当前类型获取已发布和未发布数量，避免图库显示文章的统计值。
-const rawArticleState = () => {
-  articleStateApi({ token: userStore.token, classify: props.classify }).then((res: any) => {
+const rawArticleState = async () => {
+  try {
+    const res: any = await articleStateApi({});
     if (!tackleCode(res.code)) return;
-
+    if (res.code !== 200 || !Array.isArray(res.data)) return;
     stateList.value[0].value =
       res.data.find((item: { id: number; value: number }) => item.id === 1)?.value ?? 0;
     stateList.value[1].value =
       res.data.find((item: { id: number; value: number }) => item.id === 0)?.value ?? 0;
-  });
+  } catch (error) {
+    console.error("获取文章状态数量失败", error);
+  }
 };
 
 // 当前选择
@@ -199,34 +199,28 @@ function cancel() {
   inputValue.value = "";
 }
 // 新建分组确认按钮回调 addSubsetApi
-function confirm() {
-  closeBubble();
-  let req = {
-    token: userStore.token,
-    value: {
-      moment: new Date(),
-      classify: props.classify,
-      subset_name: inputValue.value,
-    },
-  };
-  if (inputValue.value) {
-    if (tackleCode(req.token)) {
-      addSubsetApi(req).then((res: any) => {
-        if (res.code === 200) {
-          let data = {
-            id: res.data,
-            name: inputValue.value as string | number,
-            value: 0,
-          };
-          subsetStore.data.push(data);
-          inputValue.value = "";
-          proxy.$message({ type: "primary", message: "添加成功" });
-          rawSubset();
-        }
-      });
-    }
-  } else {
+async function confirm() {
+  const name = String(inputValue.value ?? "").trim();
+  if (!name) {
     proxy.$message({ type: "primary", message: "请输入内容" });
+    return;
+  }
+  try {
+    const req = {
+      value: { moment: new Date(), classify: 0, subset_name: name },
+    };
+    const res: any = await addSubsetApi(req);
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200) {
+      proxy.$message({ type: "warning", message: res.msg ?? "添加失败" });
+      return;
+    }
+    inputValue.value = "";
+    closeBubble();
+    proxy.$message({ type: "primary", message: "添加成功" });
+    await rawSubset(); // 后端只返回 code，重新拉取真实分组 id
+  } catch (error) {
+    console.error("新增分组失败", error);
   }
 }
 // 管理窗口，确认按钮回调

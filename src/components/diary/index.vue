@@ -63,27 +63,40 @@ const showSearchEmpty = computed(() => {
 });
 
 // 获取随笔随记数据
-const getData = (e: boolean) => {
+// e 为 true 表示同时刷新总条数；翻页时传 false，避免多余的统计查询
+const getData = async (e: boolean) => {
+  // 把"是否需要 count"的意图传给接口
   request.count = e;
+  // 先清空已加载的搜索词，请求成功后再写入，保证请求过程中不误显示"无结果"
   loadedSearchTerm.value = null;
+  // 请求序号自增，用于丢弃过期响应（后发请求优先）
   const currentRequest = ++latestRequest;
+  // 参数快照：防止请求期间 request 被翻页、搜索等操作修改
   const params = { ...request };
-  diaryApi(params).then((res: any) => {
-    if (currentRequest !== latestRequest) {
+  try {
+    const res: any = await diaryApi(params);
+    // 只处理最后一次请求，避免快速翻页/搜索时旧响应覆盖新数据
+    if (currentRequest !== latestRequest) return;
+    // 统一处理登录失效等业务状态码，返回 false 表示已处理、无需继续
+    if (!tackleCode(res.code)) return;
+    // 业务成功且 result 为数组才渲染，否则仅记录日志（此处不弹提示）
+    if (res.code !== 200 || !Array.isArray(res.data?.result)) {
+      console.error("获取随笔失败", res);
       return;
     }
-    if (res.code === 200 && Array.isArray(res.data?.result)) {
-      diaryList.value = res.data.result.map((item: any) => ({
-        ...item,
-        weatherId: item.weather_id
-      }));
-      // 翻页请求的 count 为 -1，保留上次取得的总数
-      if (res.data.count >= 0) count.value = res.data.count;
-      loadedSearchTerm.value = String(params.serchTerm ?? "").trim();
-    } else {
-      tackleCode(res.code);
-    }
-  });
+    // 字段适配：后端 weather_id -> 组件使用的 weatherId
+    diaryList.value = res.data.result.map((item: any) => ({
+      ...item,
+      weatherId: item.weather_id,
+    }));
+    // 仅当返回了有效总数时更新，避免翻页请求把总数覆盖成 0
+    if (res.data.count >= 0) count.value = res.data.count;
+    // 记录本次成功加载所用的搜索词，供"无结果"提示判断
+    loadedSearchTerm.value = String(params.serchTerm ?? "").trim();
+  } catch (error) {
+    // 只打印最后一次请求的异常，忽略已被新请求取代的失败
+    if (currentRequest === latestRequest) console.error("获取随笔失败", error);
+  }
 };
 
 

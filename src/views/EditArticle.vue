@@ -72,23 +72,21 @@ const handleEditorCreated = (editor: IDomEditor) => {
 };
 
 // 获取文章
-const gainArticle = () => {
-  if (route.query.id) {
-    if (tackleCode(userStore.token)) {
-      gainArticleApi({
-        token: userStore.token,
-        id: articleId
-      }).then((res: any) => {
-        if (res.code === 200 && res.data?.[0]) {
-          formData.value = res.data[0];
-          content.value = res.data[0].content ?? "";
-        } else {
-          proxy?.$message({ type: "warning", message: "文章详情获取失败" });
-        }
-      });
+const gainArticle = async () => {
+  if (!route.query.id || !Number.isFinite(articleId)) return;
+  try {
+    const res: any = await gainArticleApi({ id: articleId });
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200 || !res.data?.[0]) {
+      proxy?.$message({ type: "warning", message: "文章详情获取失败" });
+      return;
     }
-  } else return;
-}
+    formData.value = res.data[0];
+    content.value = res.data[0].content ?? "";
+  } catch (error) {
+    console.error("获取文章详情失败", error);
+  }
+};
 
 // 修改文章
 const updateArticle = async () => {
@@ -101,10 +99,8 @@ const updateArticle = async () => {
   submitting.value = true;
   try {
     await formRef.value?.uploadCover();
-    // /createArticle 接收 { token, value }；封面字段现在是上传后的文件名。
     const req = {
-      token: userStore.token,
-      id:articleId,
+      id: articleId,
       value: {
         title,
         subset_id: formData.value.subset_id ?? null,
@@ -117,22 +113,20 @@ const updateArticle = async () => {
         state: route.query.state,
       },
     };
-    // 修改文章
-    if (tackleCode(req.token)) {
-      updateArticleApi(req).then((res: any) => {
-        if (tackleCode(res.code)) {
-          if (res.code === 200) {
-            proxy?.$message({ type: "success", message: "文章修改成功" });
-          }
-        }
-      });
+    const res: any = await updateArticleApi(req);
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200) {
+      proxy?.$message({ type: "warning", message: res.msg ?? "文章修改失败" });
+      return;
     }
+    proxy?.$message({ type: "success", message: "文章修改成功" });
   } catch (error) {
-    proxy?.$message({ type: "warning", message: "封面修改失败，请重试" });
+    console.error("上传封面或修改文章失败", error);
+    proxy?.$message({ type: "warning", message: "提交失败，请重试" });
   } finally {
     submitting.value = false;
   }
-}
+};
 
 // 点击保存或发布时才上传封面，然后整理请求参数。
 const submit = async (state: 0 | 1) => {
@@ -142,13 +136,10 @@ const submit = async (state: 0 | 1) => {
     proxy?.$message({ type: "warning", message: "请输入标题" });
     return;
   }
-
   submitting.value = true;
   try {
     await formRef.value?.uploadCover();
-    // /createArticle 接收 { token, value }；封面字段现在是上传后的文件名。
     const req = {
-      token: userStore.token,
       value: {
         title,
         subset_id: formData.value.subset_id ?? null,
@@ -163,18 +154,16 @@ const submit = async (state: 0 | 1) => {
         moment: new Date().toISOString(),
       },
     };
-    // 新建文章
-    if (tackleCode(req.token)) {
-      createArticleApi(req).then((res: any) => {
-        if (tackleCode(res.code)) {
-          if (res.code === 200) {
-            proxy?.$message({ type: "success", message: "文章上传成功" });
-          }
-        }
-      });
+    const res: any = await createArticleApi(req);
+    if (!tackleCode(res.code)) return;
+    if (res.code !== 200) {
+      proxy?.$message({ type: "warning", message: res.msg ?? "文章保存失败" });
+      return;
     }
+    proxy?.$message({ type: "success", message: "文章上传成功" });
   } catch (error) {
-    proxy?.$message({ type: "warning", message: "封面上传失败，请重试" });
+    console.error("上传封面或创建文章失败", error);
+    proxy?.$message({ type: "warning", message: "提交失败，请重试" });
   } finally {
     submitting.value = false;
   }

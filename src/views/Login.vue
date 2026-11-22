@@ -8,31 +8,15 @@
       <div class="login__main__content">
         <yk-form ref="formRef" :model="form">
           <yk-form-item label="账号" field="username">
-            <yk-input
-              v-model="form.username"
-              style="width: 240px"
-              placeholder="请输入用户名"
-            ></yk-input>
+            <yk-input v-model="form.username" style="width: 240px" placeholder="请输入用户名"></yk-input>
           </yk-form-item>
           <yk-form-item label="密码" field="password">
-            <yk-input
-              v-model="form.password"
-              placeholder="请输入密码"
-              type="password"
-              style="width: 240px"
-            ></yk-input>
+            <yk-input v-model="form.password" placeholder="请输入密码" type="password" style="width: 240px"></yk-input>
           </yk-form-item>
           <yk-form-item style="margin-top: 20px">
             <yk-space style="width: 100%" align="center" :size="20">
-              <yk-button
-                type="primary"
-                @click="resetForm"
-                style="width: 110px; --pcolor: #8a3ee8"
-                >重置</yk-button
-              >
-              <yk-button @click="submitForm" style="width: 110px; --pcolor: #8a3ee8"
-                >登录</yk-button
-              >
+              <yk-button type="primary" @click="resetForm" style="width: 110px; --pcolor: #8a3ee8">重置</yk-button>
+              <yk-button @click="submitForm" style="width: 110px; --pcolor: #8a3ee8">登录</yk-button>
             </yk-space>
           </yk-form-item>
         </yk-form>
@@ -69,28 +53,26 @@ const resetForm = () => {
 };
 
 // 提交
-const submitForm = () => {
-  if (form.username && form.password) {
-    let data = {
-      name: form.username,
-      psw: form.password,
-    };
-    signinApi(data).then((res: any) => {
-      if (res.code === 200) {
-        useUser.$patch(res.data);
-        // 登录成功
-        proxy.$message({ type: "success", message: "登录成功，3s后跳转到首页" });
-        const redirect = route.query.redirect;
-        setTimeout(() => {
-          router.replace(typeof redirect === "string" ? redirect : "/");
-        }, 2000);
-      } else if (res.code === 400) {
-        proxy.$message({ type: "error", message: "用户不存在或者密码错误" });
-        form.password = "";
-      }
-    });
-  } else {
+const submitForm = async () => {
+  if (!form.username || !form.password) {
     proxy.$message({ type: "warning", message: "输入不完整" });
+    return;
+  }
+  try {
+    const res: any = await signinApi({ name: form.username, psw: form.password });
+    if (res.code === 200 && res.data?.token) {
+      useUser.$patch(res.data);
+      proxy.$message({ type: "success", message: "登录成功！" });
+      const redirect = route.query.redirect;
+      router.replace(typeof redirect === "string" ? redirect : "/");
+    } else if (res.code === 400) {
+      proxy.$message({ type: "error", message: "用户不存在或者密码错误" });
+      form.password = "";
+    } else {
+      proxy.$message({ type: "warning", message: res.msg ?? "登录失败" });
+    }
+  } catch (error) {
+    console.error("登录请求失败", error);
   }
 };
 </script>
@@ -107,28 +89,33 @@ const submitForm = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+
   .login__main {
     width: 500px;
     height: 500px;
     background: @bg-color-l;
     align-items: center;
     padding: 30px;
+
     .login__main__title {
       display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
       width: 100%;
+
       img {
         width: 100px;
         height: 100px;
       }
+
       p {
         .font-xl();
         color: @font-color-l;
         font-weight: 600;
       }
     }
+
     .login__main__content {
       padding: 40px 0;
       width: 100%;
