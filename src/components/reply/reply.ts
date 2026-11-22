@@ -1,3 +1,4 @@
+// 评论和私信组件共用的属性类型定义。
 import type { ReplyData } from "../../utils/interface";
 export type CommentProps = {
     pageSize?: number;

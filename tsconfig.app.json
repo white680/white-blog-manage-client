@@ -1,3 +1,4 @@
+// 应用端 TypeScript 配置：检查 Vue 与浏览器侧源码。
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
@@ -11,5 +12,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "user.ts"]
 }

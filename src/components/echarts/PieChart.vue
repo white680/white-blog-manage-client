@@ -1,3 +1,4 @@
+<!-- 饼图封装：按传入数据绘制图表并在组件销毁时释放实例。 -->
 <template>
   <div ref="chart" :style="{ height: chartHeight }" class="chart"></div>
 </template>
@@ -41,6 +42,7 @@ const myChart = ref<echarts.ECharts>();
 const props = defineProps(["data", "title", "chartHeight"]);
 
 const option = ref();
+// 汇总扇区数值作为中心标题，并根据传入数据生成饼图配置。
 const survey = (e: any) => {
   let total: number = 0;
   for (let i = 0; i < e.length; i++) {
@@ -79,14 +81,11 @@ const survey = (e: any) => {
             type:'pie',
             radius:['60%','76%'],
             avoidLabelOverlap:true,
+            // ECharts 4.0+ 取消了 label.normal 层级，样式直接写在 label 上
             label:{
-                normal:{
-                    show:true,
-                },
-                emphasis:{
-                    show:true
-                },
+                show:true,
             },
+            // 4.0+ 改为 emphasis.label，高亮态样式统一挂在 emphasis 里
             emphasis:{
                 label:{
                     show:true,

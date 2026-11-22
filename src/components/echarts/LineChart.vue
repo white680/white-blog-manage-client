@@ -1,3 +1,4 @@
+<!-- 折线图封装：按传入数据绘制图表并在组件销毁时释放实例。 -->
 <template>
   <div ref="chart" :style="{ height: chartHeight }" class="chart"></div>
 </template>
@@ -41,6 +42,7 @@ const props = defineProps(["data", "chartHeight"]);
 const xAxisD = ref<string[]>([]);
 const seriesD = ref<number[]>([]);
 const option = ref();
+// 把访问记录拆为日期轴和访问量序列，并生成折线图配置。
 const visit = (e: any) => {
   xAxisD.value = [];
   seriesD.value = [];

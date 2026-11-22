@@ -1,3 +1,4 @@
+// TypeScript 工程引用：分别检查应用代码与构建配置。
 {
   "files": [],
   "references": [

@@ -1,2 +1,4 @@
+# 依赖构建脚本白名单：只运行项目明确允许的安装脚本。
 allowBuilds:
+  es5-ext: false
   vue-demi: true

@@ -1,3 +1,4 @@
+<!-- 后台主布局：侧边菜单与当前子页面共用内容区域。 -->
 <template>
   <div class="index-view">
     <Menubar />

@@ -1,3 +1,4 @@
+<!-- 总览图表区：根据时间范围切换访问数据的图表展示。 -->
 <template>
   <yk-space dir="vertical" size="xl" class="datas" style="width: 100%; --pcolor: #8a3ee8">
     <div class="data-card">
@@ -40,6 +41,7 @@ const PieRadio = ref("week");
 // 访问量
 const visitData = ref([]);
 
+// 根据单选值决定展示近 7 天还是完整的 Mock 访问记录，并交给折线图渲染。
 const getVisit = (e: string) => {
   let data = visit.data;
   if (e === "week") {

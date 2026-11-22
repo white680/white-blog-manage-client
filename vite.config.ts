@@ -1,3 +1,4 @@
+// Vite 配置：自动引入 Yike UI 组件并注入 Less 基础变量。
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 

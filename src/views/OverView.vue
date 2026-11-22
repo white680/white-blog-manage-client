@@ -1,3 +1,4 @@
+<!-- 首页总览：汇总统计卡片、图表和评论区域。 -->
 <template>
   <yk-space dir="vertical" size="xl">
     <top-title name="首页" :is-search="false" />

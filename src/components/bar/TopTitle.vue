@@ -1,19 +1,22 @@
+<!-- 页面标题栏：通过插槽扩展操作区，并按需展示搜索框。 -->
 <template>
   <div class="top_title">
     <yk-title :level="2" style="margin: 0;line-height: 36px;;">{{ props.name }}</yk-title>
-    <!-- 在不同的页面中，标题右边的内容是不同的，默认搜索框，有需要再隐藏展示插槽里的内容，所以这里采用插槽 -->
-    <slot name="custom" />
-    <!-- 搜索控件 -->
-    <yk-space size="s" v-if="isSearch">
-      <Transition name="cancel_search">
-        <yk-button type="secondary" v-show="SearchData" @click="CancelSearch">取消搜索</yk-button>
-      </Transition>
-      <yk-input-search style="width: 320px" placeholder="请输入..." v-model="SearchData" @search="search">
-        <template #suffix>
-          <yk-button type="secondary"><IconSearchOutline /></yk-button>
-        </template>
-      </yk-input-search>
-    </yk-space>
+    <div class="top_title__extra">
+      <!-- 在不同的页面中，标题右边的内容是不同的，默认搜索框，有需要再隐藏展示插槽里的内容，所以这里采用插槽 -->
+      <slot name="custom" />
+      <!-- 搜索控件 -->
+      <yk-space size="s" v-if="isSearch">
+        <Transition name="cancel_search">
+          <yk-button type="secondary" v-show="SearchData" @click="CancelSearch">取消搜索</yk-button>
+        </Transition>
+        <yk-input-search style="width: 320px" placeholder="请输入..." v-model="SearchData" @search="search">
+          <template #suffix>
+            <yk-button type="secondary"><IconSearchOutline /></yk-button>
+          </template>
+        </yk-input-search>
+      </yk-space>
+    </div>
   </div>
 </template>
 
@@ -46,9 +49,16 @@ const CancelSearch=()=>{
 
 <style scoped lang="less">
 .top_title {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  &__extra {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
 }
 // 取消按钮动效
 .cancel_search-enter-from,

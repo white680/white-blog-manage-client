@@ -1,3 +1,4 @@
+<!-- 侧边菜单：根据菜单配置生成路由导航项。 -->
 <template>
   <yk-space dir="vertical" class="menu-bar" size="xl">
     <router-link

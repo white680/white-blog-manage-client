@@ -1,9 +1,6 @@
+// 全局样式：设置页面基底、主题切换动画和滚动条空间。
 body {
   background-color: @bg-color-m;
-}
-
-#app {
-  padding-top: 64px;
 }
 
 // 清空 a 标签的所有默认样式
@@ -28,7 +25,7 @@ a {
   }
 }
 
-// Codex 添加：新主题以左上角为圆心逐渐扩大，直到覆盖右下角
+// 新主题以左上角为圆心逐渐扩大，直到覆盖右下角
 ::view-transition-old(root) {
   animation: none;
   z-index: 1;
@@ -81,14 +78,20 @@ a {
 }
 
 
-// Codex 添加：旧浏览器的圆形幕布从左上角扩大，盖满后向右下角收起
+// 旧浏览器的圆形幕布从左上角扩大，盖满后向右下角收起
 .theme-curtain {
   position: fixed;
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  background: #7c3aed;
+  // 空闲时透明，避免页面更新时露出幕布底色
+  background: transparent;
   clip-path: circle(0 at 0 0);
+}
+
+.theme-curtain.cover,
+.theme-curtain.reveal {
+  background: #7c3aed;
 }
 
 .theme-curtain.cover {
@@ -101,7 +104,7 @@ a {
   transition: clip-path 420ms ease-in-out;
 }
 
-// Codex 添加：稳定预留滚动条空间，避免私信抽屉开关时页面宽度变化
+// 稳定预留滚动条空间，避免私信抽屉开关时页面宽度变化
 html {
   scrollbar-gutter: stable;
 }
